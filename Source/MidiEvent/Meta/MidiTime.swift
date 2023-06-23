@@ -7,10 +7,22 @@
 //
 
 import Foundation
+import AudioToolbox
 
 public struct MidiTime {
     public let inSeconds: TimeInterval
     public let inTicks: Ticks
+    
+    init(inSeconds: TimeInterval, inTicks: Ticks) {
+        self.inSeconds = inSeconds
+        self.inTicks = inTicks
+    }
+    
+    init(regularTimeStamp: MusicTimeStamp, beatsPerMinute: BeatsPerMinute = BeatsPerMinute.regular, ticksPerBeat: TicksPerBeat = TicksPerBeat.regular) {
+        let timeStampInTicks = Milliseconds(regularTimeStamp).toTicks(andTicksPerBeat: ticksPerBeat)
+        self.init(inSeconds: timeStampInTicks.toMs(forBeatsPerMinute: beatsPerMinute, andTicksPerBeat: ticksPerBeat).seconds, 
+                  inTicks: Milliseconds(regularTimeStamp).toTicks(andTicksPerBeat: ticksPerBeat))
+    }
 }
 
 public extension MidiTime {

@@ -14,6 +14,7 @@ public final class MidiData {
     private let sequence: MidiSequence
     public private(set) var tempoTrack: MidiTempoTrack
     public private(set) var noteTracks: [MidiNoteTrack]
+    public private(set) var eventsTracks: [MidiEventsTrack]
     
     public var format: UInt8 {
         return sequence.fileFormat.rawValue
@@ -59,6 +60,7 @@ public final class MidiData {
         sequence = MidiSequence()
         tempoTrack = MidiTempoTrack(musicTrack: sequence.tempoTrack)
         noteTracks = []
+        eventsTracks = []
     }
     
     deinit {
@@ -88,14 +90,14 @@ private extension MidiData {
     
     func retainTracks() {
         tempoTrack = MidiTempoTrack(musicTrack: sequence.tempoTrack)
-        var tracks: [MidiNoteTrack] = []
+        var tracks: [MidiEventsTrack] = []
         for i in 0 ..< sequence.trackCount {
             if let musicTrack = sequence.track(at: i) {
-                let track = MidiNoteTrack(musicTrack: musicTrack, beatsPerMinute: beatsPerMinute, ticksPerBeat: ticksPerBeat)
+                let track = MidiEventsTrack(musicTrack: musicTrack, beatsPerMinute: beatsPerMinute, ticksPerBeat: ticksPerBeat)
                 tracks.append(track)
             }
         }
-        noteTracks = tracks
+        eventsTracks = tracks
     }
     
 }
@@ -106,8 +108,11 @@ public extension MidiData {
     
     func disposeTracks() {
         sequence.dispose(track: tempoTrack)
+        
         noteTracks.forEach { sequence.dispose(track: $0) }
         noteTracks.removeAll()
+        eventsTracks.forEach { sequence.dispose(track: $0) }
+        eventsTracks.removeAll()
     }
     
 }
