@@ -31,4 +31,13 @@ public struct MidiChannelMessage: MidiEventProtocol {
         
         return (channel: channel, controller: data1, value: data2)
     }
+
+    public func toPitchBend() -> (channel: UInt8, value: UInt16)? {
+        guard (status & 0xf0) == 0xE0,
+              let channel = status.hexString.suffix(1).number
+        else { return nil }
+
+        let value: UInt16 = UInt16(data2) << 7 + UInt16(data1)
+        return (channel: channel, value: value)
+    }
 }
