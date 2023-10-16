@@ -91,6 +91,10 @@ extension MidiSequence {
     
 }
 
+enum MIDISequenceError: Error {
+    case load
+}
+
 extension MidiSequence {
     
     // Check format of SMF in header chunk
@@ -99,7 +103,7 @@ extension MidiSequence {
     // Preffered to use Format 0 -> .smf_ChannelsToTracks
     // Format 1/2 -> .smf_PreserveTracks
     
-    func load(data: Data) {
+    func load(data: Data) throws {
         func getLoadFlag(inFileFormat format: FileFormat) -> MusicSequenceLoadFlags {
             return format.rawValue == 0 ? .smf_ChannelsToTracks : .smf_PreserveTracks
         }
@@ -115,7 +119,11 @@ extension MidiSequence {
         fileFormat = getFileFormat(fromHeader: header)
         let loadFlag = getLoadFlag(inFileFormat: fileFormat)
         
-        check(MusicSequenceFileLoadData(musicSequence, data as CFData, .midiType, loadFlag), label: "MusicSequenceFileLoadData")
+        if check(MusicSequenceFileLoadData(musicSequence, data as CFData, .midiType, loadFlag), 
+              label: "MusicSequenceFileLoadData",
+                 level: .log) != noErr {
+            throw MIDISequenceError.load
+        }
     }
     
 }

@@ -72,9 +72,9 @@ public final class MidiData {
 //MARK: -  Convert MidiData to Sequence
 public extension MidiData {
     
-    func load(data: Data) {
+    func load(data: Data) throws {
         disposeTracks()
-        sequence.load(data: data)
+        try sequence.load(data: data)
         retainTracks()
     }
     
